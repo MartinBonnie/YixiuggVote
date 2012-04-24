@@ -1,27 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
 					   xmlns:s="library://ns.adobe.com/flex/spark" 
-					   xmlns:mx="library://ns.adobe.com/flex/mx">
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   width="850" height="600"
+					   creationComplete="init()"
+					   >
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			
+			import util.NumberUtilities;
+			private var flag:Boolean = false;//用来标识号码是滚动还是停止  
+			private var timer:Timer = new Timer(20,0);//设置计时器每0.02秒响应一次，即号码滚动速度  
+			private var fileStream:FileStream = new FileStream(); 
+			private var array:Array = new Array();//号码存储数组  
+			private var textURL:String="D:\\Txt\\code.txt";
+			private var result:String="";
+			
+			private var array1:Array = new Array();//号码存储数组  
+			private var array2:Array = new Array();//号码存储数组  
+			private var array3:Array = new Array();//号码存储数组  
+			private var awardTime:Number=1;
+			private var oddLength:Number;
+			private var currentIndex:Number=0;
+			
+			protected function startButton_clickHandler(event:MouseEvent):void
+			{
+				
+				//读取txt文件的名字，在showText中显示
+				flag=flag==false?true:false;
+				if(flag==false){
+					timer.stop();//那就开始滚  
+					resultText.text=result;
+					array.splice(currentIndex,1);
+				}else{
+					timer.start();//那就开始滚  
+					
+					showText.text="阿星";
+				}
+			}
+			
+			function init():void{
+				System.useCodePage=true;
+				var externalReq:URLRequest = new URLRequest("D:\\Txt\\code.txt");
+				var externalLoad:URLLoader = new URLLoader();
+				externalLoad.load(externalReq);
+				externalLoad.addEventListener(Event.COMPLETE, textReady);
+				this.timer.addEventListener(TimerEvent.TIMER,timerEventHandler);//添加计时器事件监听器  
+			}
+			
+			function textReady(event:Event):void
+			{
+				var str:String=event.target.data;
+				array = str.split("\r\n");
+				if(array.length==1){  
+					array = event.target.data.split('\r');  
+				}  
+				while(array.indexOf("",0)!=-1){//消除因文本输入错误而出现的空格  
+					array.splice(array.indexOf("",0),1);//去掉空元素  
+				}  
+				if(array.length==0){  
+					Alert.show("文件中无号码！","错误提示");  
+				}  
+			}
+			
+			//计时器事件处理  
+			public function timerEventHandler(event:TimerEvent):void{  
+				if(array.length>0){  
+					var ran:Number = NumberUtilities.random(0,array.length-1);//生成一个[0,length)的随机整数，这里NumberUtilities.as在util包中  
+					var a:String = array[ran];//取出位置为上面随机数的元素 
+					showText.text = a;//显示号码  
+					result = a; 
+					currentIndex=ran;
+					
+				}else{  
+					flag = false;  
+				}  
+			}  
+			
+		]]>
+	</fx:Script>
+	
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 	</fx:Declarations>
-	<s:states>
-		<s:State name="state1" />
-		<s:State name="state2" />
-	</s:states>
-	<s:transitions>
-		<s:Transition>
-			<s:AnimateColor target="{center}" duration="150" />
-		</s:Transition>
-	</s:transitions>
-	<s:Group mouseDown="currentState='state2'" mouseUp="currentState='state1'">
-		<s:Ellipse x="50" y="50" width="100" height="100">
-			<s:fill>
-				<mx:RadialGradient>
-					<mx:GradientEntry id="center" color="0xf0f0f0" color.state2="0x808080" ratio="0" />
-					<mx:GradientEntry id="edge" color="0x404040" ratio="1" />
-				</mx:RadialGradient>
-			</s:fill>
-		</s:Ellipse>
-	</s:Group>
+	<s:Panel x="50" y="33" width="750" height="463">
+		<s:Image x="0" y="0" width="293" height="420" source="image/yixiugg.jpg" scaleMode="letterbox" />
+		<s:Image x="413" y="10" width="268" height="408" source="image/yixiugg2.jpg" scaleMode="letterbox" />
+		<s:Group x="184" y="65" width="324" height="239">
+			<s:Button id="startButton" x="120" y="21" label="开始抽奖"
+					  click="startButton_clickHandler(event)"/>
+			<s:Label x="95" y="69" text="姓名"/>
+			<s:TextInput id="showText" x="102" y="88"/>
+			<s:TextInput id="resultText" x="102" y="173"/>
+			<s:Label x="95" y="141" text="结果"/>
+		</s:Group>
+	</s:Panel>
 </s:WindowedApplication>
