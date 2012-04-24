@@ -6,8 +6,6 @@
 					   creationComplete="init()"
 					   >
 	
-	
-	
 	<fx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
@@ -121,40 +119,58 @@
 			{
 				currentStep=3;				
 			}
-			
+			protected function switchBtn_clickHandler(event:MouseEvent):void
+			{
+				if(myStack.selectedIndex==0)
+					myStack.selectedIndex=1;
+				else
+					myStack.selectedIndex=0;
+			}
 		]]>
 	</fx:Script>
 	
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 	</fx:Declarations>
-	   x="228" y="100" width="747" height="605"  >
-		<s:Image x="0" y="0" width="293" height="379" source="image/yixiugg.jpg" scaleMode="letterbox" />
-		<s:Image x="413" y="10" width="268" height="369" source="image/yixiugg2.jpg" scaleMode="letterbox" />
-		<s:Group x="184" y="65" width="324" height="239">
-			<s:Button id="startButton" x="120" y="21" label="开始抽奖"
-					  click="startButton_clickHandler(event)" color="#6EF10D"/>
-			<s:Label x="95" y="69" text="姓名"/>
-			<s:TextInput id="showText" x="102" y="88"/>
-			<s:TextInput id="resultText" x="102" y="173"/>
-			<s:Label x="95" y="141" text="获奖者"/>
-		</s:Group>
-	</s:Panel>
-	<s:Group x="228" y="534" width="747" height="171">
-		<s:Label x="5" y="29" text="第一轮获奖者："/>
-		<s:Label x="6" y="72" text="第二轮获奖者："/>
-		<s:Label x="5" y="121" text="第三轮获奖者："/>
-		<s:TextInput id="firstStep" x="113" y="19" width="501" height="25"/>
-		<s:TextInput id="secondStep" x="114" y="62" width="500" height="25"/>
-		<s:TextInput id="thirdStep" x="114" y="111" width="500" height="25"/>
-		<s:Button id="firstStepButton" x="648" y="21" label="第一轮开始"
-				  click="firstStepButton_clickHandler(event)" color="#B822BA"/>
-		<s:Button id="secondStepButton" x="648" y="63" label="第二轮开始"
-				  click="secondStepButton_clickHandler(event)" color="#E60626"/>
-		<s:Button id="thirdStepButton" x="648" y="112" label="第三轮开始"
-				  click="thirdStepButton_clickHandler(event)" color="#2013C3"/>
-		<s:Label id="firstLabel" x="82" y="31" color="#F30808" text="( 0 )"/>
-		<s:Label id="secondLabel" x="80" y="72" color="#F11919" text="(  0 )"/>
-		<s:Label id="thirdLabel" x="84" y="121" color="#F60F0F" text="( 0 )"/>
-	</s:Group>
+	<mx:VBox >
+		<mx:ViewStack id="myStack" selectedIndex="0">
+			<mx:VBox>
+				<s:Panel  x="228" y="100" width="747" height="605"  >
+					<s:Image x="0" y="0" width="293" height="379" source="image/yixiugg.jpg" scaleMode="letterbox" />
+					<s:Image x="413" y="10" width="268" height="369" source="image/yixiugg2.jpg" scaleMode="letterbox" />
+					<s:Group x="184" y="65" width="324" height="239">
+						<s:Button id="startButton" x="120" y="21" label="开始抽奖"
+								  click="startButton_clickHandler(event)" color="#6EF10D"/>
+						<s:Label x="95" y="69" text="姓名"/>
+						<s:TextInput id="showText" x="102" y="88"/>
+						<s:TextInput id="resultText" x="102" y="173"/>
+						<s:Label x="95" y="141" text="获奖者"/>
+					</s:Group>
+				</s:Panel>
+				<s:Group x="228" y="534" width="747" height="171">
+					<s:Label x="5" y="29" text="第一轮获奖者："/>
+					<s:Label x="6" y="72" text="第二轮获奖者："/>
+					<s:Label x="5" y="121" text="第三轮获奖者："/>
+					<s:TextInput id="firstStep" x="113" y="19" width="501" height="25"/>
+					<s:TextInput id="secondStep" x="114" y="62" width="500" height="25"/>
+					<s:TextInput id="thirdStep" x="114" y="111" width="500" height="25"/>
+					<s:Button id="firstStepButton" x="648" y="21" label="第一轮开始"
+							  click="firstStepButton_clickHandler(event)" color="#B822BA"/>
+					<s:Button id="secondStepButton" x="648" y="63" label="第二轮开始"
+							  click="secondStepButton_clickHandler(event)" color="#E60626"/>
+					<s:Button id="thirdStepButton" x="648" y="112" label="第三轮开始"
+							  click="thirdStepButton_clickHandler(event)" color="#2013C3"/>
+					<s:Label id="firstLabel" x="82" y="31" color="#F30808" text="( 0 )"/>
+					<s:Label id="secondLabel" x="80" y="72" color="#F11919" text="(  0 )"/>
+					<s:Label id="thirdLabel" x="84" y="121" color="#F60F0F" text="( 0 )"/>
+				</s:Group>
+			</mx:VBox>
+			<mx:VBox>
+				<mx:Button label="第二屏幕"/>
+			</mx:VBox>
+		</mx:ViewStack>
+	</mx:VBox>
+	<mx:HBox>
+		<mx:Button id="switchBtn" click="switchBtn_clickHandler(event)" label="切换"/>
+	</mx:HBox>
 </s:WindowedApplication>
