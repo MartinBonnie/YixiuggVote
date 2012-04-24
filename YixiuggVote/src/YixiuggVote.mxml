@@ -2,9 +2,11 @@
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
 					   xmlns:s="library://ns.adobe.com/flex/spark" 
 					   xmlns:mx="library://ns.adobe.com/flex/mx"
-					   width="850" height="600"
+					   width="1024" height="768"
 					   creationComplete="init()"
 					   >
+	
+	
 	
 	<fx:Script>
 		<![CDATA[
@@ -25,7 +27,8 @@
 			private var array3:Array = new Array();//号码存储数组  
 			private var awardTime:Number=1;
 			private var oddLength:Number;
-			private var currentIndex:Number=0;
+			private var currentIndex:int=0;//保存当前数组中的第几个元素
+			private var currentStep:int=0;//保存当前是第几轮抽奖
 			
 			protected function startButton_clickHandler(event:MouseEvent):void
 			{
@@ -33,13 +36,37 @@
 				//读取txt文件的名字，在showText中显示
 				flag=flag==false?true:false;
 				if(flag==false){
-					timer.stop();//那就开始滚  
+					
+					timer.stop();//抽奖结束滚  
 					resultText.text=result;
+					//Alert.show("index="+currentIndex,"提示");
+					if(currentStep==1 || currentStep==0)
+					{
+						array1.push(result);
+						//var firstResult="";
+						//for(var i:int=0;i<array1.length;i++){
+						//	firstResult+=
+						//}
+						firstStep.text=array1.toString();
+						firstLabel.text="( "+array1.length+" )";
+						
+					}
+					else if(currentStep==2){
+						array2.push(result);
+						secondStep.text=array2.toString();
+						secondLabel.text="( "+array2.length+" )";
+						
+					}else{
+						array3.push(result);
+						thirdStep.text=array3.toString();
+						thirdLabel.text="( "+array3.length+" )";
+						
+					}
 					array.splice(currentIndex,1);
+					startButton.label="开始抽奖";
 				}else{
 					timer.start();//那就开始滚  
-					
-					showText.text="阿星";
+					startButton.label="看看是谁";
 				}
 			}
 			
@@ -81,22 +108,53 @@
 				}  
 			}  
 			
+			protected function firstStepButton_clickHandler(event:MouseEvent):void
+			{
+				currentStep=1;
+				
+			}
+			protected function secondStepButton_clickHandler(event:MouseEvent):void
+			{
+				currentStep=2;		
+			}
+			protected function thirdStepButton_clickHandler(event:MouseEvent):void
+			{
+				currentStep=3;				
+			}
+			
 		]]>
 	</fx:Script>
 	
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 	</fx:Declarations>
-	<s:Panel x="50" y="33" width="750" height="463">
-		<s:Image x="0" y="0" width="293" height="420" source="image/yixiugg.jpg" scaleMode="letterbox" />
-		<s:Image x="413" y="10" width="268" height="408" source="image/yixiugg2.jpg" scaleMode="letterbox" />
+	   x="228" y="100" width="747" height="605"  >
+		<s:Image x="0" y="0" width="293" height="379" source="image/yixiugg.jpg" scaleMode="letterbox" />
+		<s:Image x="413" y="10" width="268" height="369" source="image/yixiugg2.jpg" scaleMode="letterbox" />
 		<s:Group x="184" y="65" width="324" height="239">
 			<s:Button id="startButton" x="120" y="21" label="开始抽奖"
-					  click="startButton_clickHandler(event)"/>
+					  click="startButton_clickHandler(event)" color="#6EF10D"/>
 			<s:Label x="95" y="69" text="姓名"/>
 			<s:TextInput id="showText" x="102" y="88"/>
 			<s:TextInput id="resultText" x="102" y="173"/>
-			<s:Label x="95" y="141" text="结果"/>
+			<s:Label x="95" y="141" text="获奖者"/>
 		</s:Group>
 	</s:Panel>
+	<s:Group x="228" y="534" width="747" height="171">
+		<s:Label x="5" y="29" text="第一轮获奖者："/>
+		<s:Label x="6" y="72" text="第二轮获奖者："/>
+		<s:Label x="5" y="121" text="第三轮获奖者："/>
+		<s:TextInput id="firstStep" x="113" y="19" width="501" height="25"/>
+		<s:TextInput id="secondStep" x="114" y="62" width="500" height="25"/>
+		<s:TextInput id="thirdStep" x="114" y="111" width="500" height="25"/>
+		<s:Button id="firstStepButton" x="648" y="21" label="第一轮开始"
+				  click="firstStepButton_clickHandler(event)" color="#B822BA"/>
+		<s:Button id="secondStepButton" x="648" y="63" label="第二轮开始"
+				  click="secondStepButton_clickHandler(event)" color="#E60626"/>
+		<s:Button id="thirdStepButton" x="648" y="112" label="第三轮开始"
+				  click="thirdStepButton_clickHandler(event)" color="#2013C3"/>
+		<s:Label id="firstLabel" x="82" y="31" color="#F30808" text="( 0 )"/>
+		<s:Label id="secondLabel" x="80" y="72" color="#F11919" text="(  0 )"/>
+		<s:Label id="thirdLabel" x="84" y="121" color="#F60F0F" text="( 0 )"/>
+	</s:Group>
 </s:WindowedApplication>
