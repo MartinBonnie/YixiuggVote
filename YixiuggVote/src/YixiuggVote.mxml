@@ -322,11 +322,11 @@
 			</mx:Canvas>
 			
 			<mx:Canvas id="custInfo" label="Customer Info" horizontalCenter="0" verticalCenter="0">
-				<s:Button x="429" y="262" label="show" click="button1_clickHandler(event)">
+				<s:Button x="431" y="321" label="show" click="button1_clickHandler(event)">
 					
 				</s:Button>
-				<s:RichEditableText x="83" y="119" width="253" height="428" id="txtBox" enabled="true"/>
-				<mx:DataGrid id="dataGrid" width="100%" height="111" dataProvider="{cuePointXMLList}"
+				<s:RichEditableText x="83" y="321" width="253" height="226" id="txtBox" enabled="true"/>
+				<mx:DataGrid id="dataGrid" width="100%" height="313" dataProvider="{cuePointXMLList}"
 							 rowCount="{cuePointXMLList.length + 1}" editable="true" selectable="true">
 					<mx:columns>
 						<mx:DataGridColumn id="nameCol"
@@ -343,7 +343,7 @@
 					</mx:columns>
 					
 				</mx:DataGrid>
-				<s:Button id="saveXML" x="429" y="321" label="save"
+				<s:Button id="saveXML" x="429" y="529" label="save"
 						  click="saveXML_clickHandler(event)"/>
 			</mx:Canvas>
 		</mx:ViewStack>

@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="190" height="140">
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="72" height="34">
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 	</fx:Declarations>
-	<s:Label width="105" height="18" fontSize="14" text="请输入你的邮箱:"/>
-	<s:TextInput width="187" height="31"/>
-	<s:Label width="168" height="21" fontSize="14" text="请输入你的评论："/>
-	<s:TextArea width="189" height="50"/>
+	<s:Button width="70" height="33" label="签到"/>
 </mx:VBox>
