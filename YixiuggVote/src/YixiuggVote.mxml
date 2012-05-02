@@ -2,8 +2,8 @@
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
 					   xmlns:s="library://ns.adobe.com/flex/spark" 
 					   xmlns:mx="library://ns.adobe.com/flex/mx"
-					   width="1024" height="768"
 					   creationComplete="init()"
+					   initialize="myService.send()"
 					   >
 	
 	<fx:Script>
@@ -14,53 +14,153 @@
 			
 			import util.NumberUtilities;
 			private var flag:Boolean = false;//用来标识号码是滚动还是停止  
-			private var timer:Timer = new Timer(20,0);//设置计时器每0.02秒响应一次，即号码滚动速度  
-			private var fileStream:FileStream = new FileStream(); 
-			private var array:Array = new Array();//号码存储数组  
-			private var textURL:String="D:\\Txt\\code.txt";
-			private var result:String="";
+			private var timer:Timer = new Timer(100,0);//设置计时器每0.02秒响应一次，即号码滚动速度  
+			private var array:Array = new Array();//存储所有人的名称信息
+			private var arrayGrade0:Array = new Array();//存储所有的等级为0的用户信息
+			private var arrayGrade1:Array = new Array();//存储所有的等级为1的用户信息
+			private var arrayGrade2:Array = new Array();//存储所有的等级为2的用户信息
+			private var arrayGrade3:Array = new Array();//存储所有的等级为3的用户信息
 			
-			private var array1:Array = new Array();//号码存储数组  
-			private var array2:Array = new Array();//号码存储数组  
-			private var array3:Array = new Array();//号码存储数组  
+			
+			private var result:String="";			
+			private var array1:Array = new Array();//存储最终获奖一等奖的用户的名称集合 
+			private var array2:Array = new Array();//存储最终获奖二等奖的用户的名称集合  
+			private var array3:Array = new Array();//存储最终获奖三等奖的用户的名称集合
 			private var awardTime:Number=1;
 			private var oddLength:Number;
 			private var currentIndex:int=0;//保存当前数组中的第几个元素
 			private var currentStep:int=0;//保存当前是第几轮抽奖
+			public var xmlFile:File =File.applicationDirectory;
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
 			
+			
+			//上传文件代码
+				
+			
+			
+			[Bindable]
+			private var myData:ArrayCollection;
+			private function resultHandler(event:ResultEvent):void{
+				myData=event.result.guest.item;
+				for(var i:int=0;i<myData.length;i++){
+					var mapParam:Object = new Object();
+					mapParam["picture"]=myData.getItemAt(i).picture;
+					mapParam["name"]=myData.getItemAt(i).name;
+					if(myData.getItemAt(i).grade=='1'){
+						arrayGrade1.push(mapParam);
+					}else if(myData.getItemAt(i).grade=='2'){
+						arrayGrade2.push(mapParam);
+					}else if(myData.getItemAt(i).grade=='3'){
+						arrayGrade3.push(mapParam);
+					}else{
+						arrayGrade0.push(mapParam);
+					}
+					array.push(mapParam);
+				}
+				
+			}
+			
+			private function deleteArray(array:Array,arrayGrade0:Array,name:String){
+			
+				for(var i:int=0;i<array.length;i++){
+					if(array[i]["name"]==name){
+					  array.splice(i,1);
+					  break;
+					}
+				}
+				for(var i:int=0;i<arrayGrade0.length;i++){
+					if(arrayGrade0[i]["name"]==name){
+						arrayGrade0.splice(i,1);
+						break;
+					}
+				}
+			}
 			protected function startButton_clickHandler(event:MouseEvent):void
 			{
 				
 				//读取txt文件的名字，在showText中显示
+				var ran:Number;
+				var a:String;
 				flag=flag==false?true:false;
 				if(flag==false){
 					
-					timer.stop();//抽奖结束滚  
-					resultText.text=result;
-					//Alert.show("index="+currentIndex,"提示");
-					if(currentStep==1 || currentStep==0)
-					{
-						array1.push(result);
-						//var firstResult="";
-						//for(var i:int=0;i<array1.length;i++){
-						//	firstResult+=
-						//}
-						firstStep.text=array1.toString();
-						firstLabel.text="( "+array1.length+" )";
-						
+					timer.stop();//抽奖结束滚
+					
+					if(currentStep==1|| currentStep==0){
+					    if(arrayGrade1.length>0){
+							ran = NumberUtilities.random(0,arrayGrade1.length-1);
+							a = arrayGrade1[ran]["name"];
+							resultText.text=a;
+							showText.text = a;
+							pictureShow.source=arrayGrade1[ran]["picture"];
+							array1.push(a);
+							firstStep.text=array1.toString();
+							firstLabel.text="( "+array1.length+" )";
+							arrayGrade1.splice(ran,1);
+							deleteArray(array,arrayGrade0,a);
+						}else{
+							ran = NumberUtilities.random(0,arrayGrade0.length-1);
+							a = arrayGrade0[ran]["name"];
+							resultText.text=a;
+							showText.text = a;
+							pictureShow.source=arrayGrade0[ran]["picture"];
+							array1.push(a);
+							firstStep.text=array1.toString();
+							firstLabel.text="( "+array1.length+" )";
+							arrayGrade1.splice(ran,1);
+							deleteArray(array,arrayGrade0,a);
+						}
+					}else if(currentStep==2){
+						if(arrayGrade2.length>0){
+							ran = NumberUtilities.random(0,arrayGrade2.length-1);
+							a = arrayGrade2[ran]["name"];
+							pictureShow.source=arrayGrade2[ran]["picture"];
+							resultText.text=a;
+							showText.text = a;
+							array2.push(a);
+							secondStep.text=array2.toString();
+							secondLabel.text="( "+array2.length+" )";
+							arrayGrade2.splice(ran,1);
+							deleteArray(array,arrayGrade0,a);
+						}else{
+							ran = NumberUtilities.random(0,arrayGrade0.length-1);
+							a = arrayGrade0[ran]["name"];
+							resultText.text=a;
+							showText.text = a;
+							pictureShow.source=arrayGrade0[ran]["picture"];
+							array2.push(a);
+							secondStep.text=array2.toString();
+							secondLabel.text="( "+array2.length+" )";
+							arrayGrade2.splice(ran,1);
+							deleteArray(array,arrayGrade0,a);
+						}
+					
+					}else if(currentStep==3){
+						if(arrayGrade3.length>0){
+							ran = NumberUtilities.random(0,arrayGrade3.length-1);
+							a = arrayGrade3[ran]["name"];
+							resultText.text=a;
+							showText.text = a;
+							pictureShow.source=arrayGrade3[ran]["picture"];
+							array3.push(a);
+							thirdStep.text=array3.toString();
+							thirdLabel.text="( "+array3.length+" )";
+							arrayGrade3.splice(ran,1);
+							deleteArray(array,arrayGrade0,a);
+						}else{
+							ran = NumberUtilities.random(0,arrayGrade0.length-1);
+							a = arrayGrade0[ran]["name"];
+							resultText.text=a;
+							showText.text = a;
+							pictureShow.source=arrayGrade0[ran]["picture"];
+							array3.push(a);
+							thirdStep.text=array3.toString();
+							thirdLabel.text="( "+array3.length+" )";
+							arrayGrade3.splice(ran,1);
+							deleteArray(array,arrayGrade0,a);
+						}
 					}
-					else if(currentStep==2){
-						array2.push(result);
-						secondStep.text=array2.toString();
-						secondLabel.text="( "+array2.length+" )";
-						
-					}else{
-						array3.push(result);
-						thirdStep.text=array3.toString();
-						thirdLabel.text="( "+array3.length+" )";
-						
-					}
-					array.splice(currentIndex,1);
 					startButton.label="开始抽奖";
 				}else{
 					timer.start();//那就开始滚  
@@ -69,37 +169,21 @@
 			}
 			
 			function init():void{
+				systemManager.stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
 				System.useCodePage=true;
-				var externalReq:URLRequest = new URLRequest("D:\\Txt\\code.txt");
-				var externalLoad:URLLoader = new URLLoader();
-				externalLoad.load(externalReq);
-				externalLoad.addEventListener(Event.COMPLETE, textReady);
 				this.timer.addEventListener(TimerEvent.TIMER,timerEventHandler);//添加计时器事件监听器  
 			}
 			
-			function textReady(event:Event):void
-			{
-				var str:String=event.target.data;
-				array = str.split("\r\n");
-				if(array.length==1){  
-					array = event.target.data.split('\r');  
-				}  
-				while(array.indexOf("",0)!=-1){//消除因文本输入错误而出现的空格  
-					array.splice(array.indexOf("",0),1);//去掉空元素  
-				}  
-				if(array.length==0){  
-					Alert.show("文件中无号码！","错误提示");  
-				}  
-			}
 			
 			//计时器事件处理  
 			public function timerEventHandler(event:TimerEvent):void{  
 				if(array.length>0){  
 					var ran:Number = NumberUtilities.random(0,array.length-1);//生成一个[0,length)的随机整数，这里NumberUtilities.as在util包中  
-					var a:String = array[ran];//取出位置为上面随机数的元素 
-					showText.text = a;//显示号码  
+					var a:String = array[ran]["name"];//取出位置为上面随机数的元素 
 					result = a; 
-					currentIndex=ran;
+					resultText.text=result;
+					showText.text = result;
+					pictureShow.source=array[ran]["picture"];
 					
 				}else{  
 					flag = false;  
@@ -109,68 +193,167 @@
 			protected function firstStepButton_clickHandler(event:MouseEvent):void
 			{
 				currentStep=1;
+				firstStepButton.setStyle("color","#D310F6");
 				
 			}
 			protected function secondStepButton_clickHandler(event:MouseEvent):void
 			{
-				currentStep=2;		
+				currentStep=2;
+				secondStepButton.setStyle("color","#D310F6");
 			}
 			protected function thirdStepButton_clickHandler(event:MouseEvent):void
 			{
-				currentStep=3;				
+				currentStep=3;	
+				thirdStepButton.setStyle("color","#D310F6");
 			}
 			protected function switchBtn_clickHandler(event:MouseEvent):void
 			{
-				if(myStack.selectedIndex==0)
-					myStack.selectedIndex=1;
-				else
-					myStack.selectedIndex=0;
+				myStack.selectedIndex=0;
 			}
+			protected function inputBtn_clickHandler(event:MouseEvent):void
+			{
+				myStack.selectedIndex=1;
+			}
+			//用户信息统计
+//			private function parametersLabelFunction(item:Object, column:DataGridColumn):String {
+//				return item.Parameters.Parameter.length();
+//			}
+			
+			private function numericSortCompareFunction(objA:Object, objB:Object):int {
+				var itemA:String = objA.name.text();
+				var itemB:String = objB.name.text();
+				
+				if (itemA.localeCompare(itemB)>0) {
+					return 1;
+				} else if (itemA.localeCompare(itemB)<0) {
+					return -1;
+				} else {
+					return 0;
+				}
+			}
+			
+			
+		//计划修改xml文件
+			
+			[Bindable]public var acItemsSelected:Object;;
+			
+			//事件方法
+			
+			protected function dataGrid_itemClickHandler(event:MouseEvent):void
+			{
+				acItemsSelected = dataGrid.selectedItem; 
+				Alert(acItemsSelected.arrive);
+			}
+			public function button1_clickHandler(event:MouseEvent):void
+			{
+				//Alert(dataGrid.selectedIndex.valueOf(); 
+				this.txtBox.text =tempXML.toString();
+			}
+			
+			protected function saveXML_clickHandler(event:MouseEvent):void
+			{
+				
+				xmlFile=xmlFile.resolvePath("name.xml");
+				
+				Alert(xmlFile.nativePath);
+				var outputString:String = '<?xml version="1.0" encoding="utf-8"?>\n';                
+				outputString += tempXML.toXMLString(); 
+				
+				outputString = outputString.replace(/\n/g, File.lineEnding); 
+				outputString = outputString.replace(/></g, ">"+File.lineEnding+"<");
+				
+				var stream:FileStream = new FileStream(); 
+				stream = new FileStream(); 
+				stream.open(xmlFile, FileMode.WRITE); 
+				stream.writeUTFBytes(outputString); 
+				stream.close();
+			}
+			
 		]]>
 	</fx:Script>
 	
+	
+	
+	
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<mx:HTTPService id="myService" url="name.xml" result="resultHandler(event)"/>
+		<fx:XML id="tempXML"	source="name.xml" />
+		<mx:XMLListCollection id="cuePointXMLList"
+							  source="{tempXML.item}" />
+		<mx:XMLListCollection id="parametersXMLList"
+							  source="{dataGrid.selectedItem.Parameters.Parameter}" />
 	</fx:Declarations>
-	<mx:VBox >
-		<mx:ViewStack id="myStack" selectedIndex="0">
-			<mx:VBox>
-				<s:Panel  x="228" y="100" width="747" height="605"  >
-					<s:Image x="0" y="0" width="293" height="379" source="image/yixiugg.jpg" scaleMode="letterbox" />
-					<s:Image x="413" y="10" width="268" height="369" source="image/yixiugg2.jpg" scaleMode="letterbox" />
-					<s:Group x="184" y="65" width="324" height="239">
-						<s:Button id="startButton" x="120" y="21" label="开始抽奖"
-								  click="startButton_clickHandler(event)" color="#6EF10D"/>
-						<s:Label x="95" y="69" text="姓名"/>
-						<s:TextInput id="showText" x="102" y="88"/>
-						<s:TextInput id="resultText" x="102" y="173"/>
-						<s:Label x="95" y="141" text="获奖者"/>
-					</s:Group>
-				</s:Panel>
-				<s:Group x="228" y="534" width="747" height="171">
-					<s:Label x="5" y="29" text="第一轮获奖者："/>
-					<s:Label x="6" y="72" text="第二轮获奖者："/>
-					<s:Label x="5" y="121" text="第三轮获奖者："/>
-					<s:TextInput id="firstStep" x="113" y="19" width="501" height="25"/>
-					<s:TextInput id="secondStep" x="114" y="62" width="500" height="25"/>
-					<s:TextInput id="thirdStep" x="114" y="111" width="500" height="25"/>
-					<s:Button id="firstStepButton" x="648" y="21" label="第一轮开始"
-							  click="firstStepButton_clickHandler(event)" color="#B822BA"/>
-					<s:Button id="secondStepButton" x="648" y="63" label="第二轮开始"
-							  click="secondStepButton_clickHandler(event)" color="#E60626"/>
-					<s:Button id="thirdStepButton" x="648" y="112" label="第三轮开始"
-							  click="thirdStepButton_clickHandler(event)" color="#2013C3"/>
-					<s:Label id="firstLabel" x="82" y="31" color="#F30808" text="( 0 )"/>
-					<s:Label id="secondLabel" x="80" y="72" color="#F11919" text="(  0 )"/>
-					<s:Label id="thirdLabel" x="84" y="121" color="#F60F0F" text="( 0 )"/>
-				</s:Group>
-			</mx:VBox>
-			<mx:VBox>
-				<mx:Button label="第二屏幕"/>
-			</mx:VBox>
+	<mx:VBox  width="100%" height="100%" >
+		
+		<mx:ViewStack id="myStack" selectedIndex="1" width="100%" height="100%" horizontalCenter="0" verticalCenter="0">
+			<mx:Canvas id="search" label="Search" width="80%" height="90%" >
+				<s:Panel  width="80%" height="80%" horizontalCenter="0" verticalCenter="0">
+				<s:Image  x="480" y="-33" id="pictureShow" width="297" height="279" source="picture/2.jpg" scaleMode="letterbox" />
+					<s:Button id="startButton" x="143" y="-15" width="231" height="46" label="开始抽奖"
+							  click="startButton_clickHandler(event)" color="#6EF10D" fontSize="16"/>
+					<s:Label x="85" y="70" width="77" height="33" fontSize="25" text="姓名"/>
+					<s:TextInput id="showText" x="202" y="56" width="262" height="57" fontSize="18"/>
+					<s:TextInput id="resultText" x="203" y="141" width="261" height="52" fontSize="18"/>
+					<s:Label x="77" y="155" width="97" height="38" fontSize="25" text="获奖者"/>
+				
+					<s:Label x="14" y="282" width="120" height="36" fontSize="20" text="第一轮获奖者"/>
+					<s:Label x="10" y="337" width="120" height="45" fontSize="20" text="第二轮获奖者"/>
+					<s:Label x="11" y="389"  width="120" height="35" fontSize="20"  text="第三轮获奖者"/>
+					<s:TextInput id="firstStep" x="184" y="274" width="450" height="43" fontSize="18"/>
+					<s:TextInput id="secondStep" x="180" y="324" width="454" height="41" fontSize="18"/>
+					<s:Button id="firstStepButton" x="645" y="275" width="131" height="40"
+							  label="第一轮开始" click="firstStepButton_clickHandler(event)"
+							  color="#26F610" fontSize="16"/>
+					<s:Button id="secondStepButton" x="646" y="326" width="131" height="40"
+							  label="第二轮开始" click="secondStepButton_clickHandler(event)"
+							  color="#26F610" fontSize="16"/>
+					<s:Button id="thirdStepButton" x="645" y="383" width="131" height="40"
+							  label="第三轮开始" click="thirdStepButton_clickHandler(event)"
+							  color="#26F610" fontSize="16"/>
+					<s:Label id="firstLabel" x="135" y="283" width="41" height="25" color="#F30808"
+							 fontSize="18" text="( 0 )"/>
+					<s:Label id="secondLabel" x="131" y="337" width="41" height="25" color="#F11919"
+							 fontSize="18" text="(  0 )"/>
+					<s:TextInput id="thirdStep" x="180" y="381" width="454" height="45" fontSize="18"/>
+					<s:Label id="thirdLabel" x="127" y="390" width="41" height="25" color="#F60F0F" fontSize="18"
+							 text="( 0 )"/>
+					</s:Panel>
+			</mx:Canvas>
+			
+			<mx:Canvas id="custInfo" label="Customer Info" horizontalCenter="0" verticalCenter="0">
+				<s:Button x="429" y="262" label="show" click="button1_clickHandler(event)">
+					
+				</s:Button>
+				<s:RichEditableText x="83" y="119" width="253" height="428" id="txtBox" enabled="true"/>
+				<mx:DataGrid id="dataGrid" width="100%" height="111" dataProvider="{cuePointXMLList}"
+							 rowCount="{cuePointXMLList.length + 1}" editable="true" selectable="true">
+					<mx:columns>
+						<mx:DataGridColumn id="nameCol"
+										   dataField="name"
+										   headerText="姓名:"
+										   sortCompareFunction="numericSortCompareFunction"
+										   />
+						<mx:DataGridColumn id="arriveCol"
+										   dataField="arrive"
+										   headerText="签到:" />
+						<mx:DataGridColumn headerText="操作" dataField="arrive" itemRenderer="reviewForm"   rendererIsEditor="true">
+							
+						</mx:DataGridColumn>
+					</mx:columns>
+					
+				</mx:DataGrid>
+				<s:Button id="saveXML" x="429" y="321" label="save"
+						  click="saveXML_clickHandler(event)"/>
+			</mx:Canvas>
 		</mx:ViewStack>
+		<mx:HBox>
+			<mx:Button id="switchBtn" x="0" y="0" label="开始抽奖"
+					   click="switchBtn_clickHandler(event)"/>
+			<mx:Button id="inputBtn" x="0" y="0" label="录入信息"
+					   click="inputBtn_clickHandler(event)"/>
+			
+		</mx:HBox>
 	</mx:VBox>
-	<mx:HBox>
-		<mx:Button id="switchBtn" click="switchBtn_clickHandler(event)" label="切换"/>
-	</mx:HBox>
+	
 </s:WindowedApplication>
